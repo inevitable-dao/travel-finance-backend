@@ -36,6 +36,7 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'warn',
     "@typescript-eslint/init-declarations": "error",
     "@typescript-eslint/no-empty-interface": "warn",
+    '@typescript-eslint/no-magic-numbers': 'off',
     '@typescript-eslint/member-delimiter-style': [
       'error',
       {
@@ -108,15 +109,6 @@ module.exports = {
     '@typescript-eslint/no-implied-eval': 'error',
     '@typescript-eslint/no-invalid-this': 'error',
     '@typescript-eslint/no-invalid-void-type': 'error',
-    '@typescript-eslint/no-magic-numbers': [
-      'error',
-      {
-        'ignoreEnums': true,
-        'ignoreNumericLiteralTypes': true,
-        'ignoreReadonlyClassProperties': true,
-        'ignoreTypeIndexes': true,
-      }
-    ],
     '@typescript-eslint/no-redeclare': 'warn',
     '@typescript-eslint/no-redundant-type-constituents': 'error',
     '@typescript-eslint/no-type-alias': [

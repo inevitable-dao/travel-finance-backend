@@ -11,3 +11,4 @@ services:
       - '80:80'
     volumes:
       - ./src:/app/src
+      - .env.development:/app/.env.development
