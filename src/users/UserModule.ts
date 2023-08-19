@@ -9,6 +9,14 @@ import { UserSignInUseCase } from './application/UserSignInUseCase/UserSignInUse
 import { UserCardEntity } from './infrastructure/entities/UserCardEntity';
 import { UserCardPackageEntity } from './infrastructure/entities/UserCardPackageEntity';
 import { GetUserOwnedCardsUseCase } from './application/GetUserOwnedCardsUseCase/GetUserOwnedCardsUseCase';
+import { CreateJourneyUseCase } from './application/CreateJourneyUseCase/CreateJourneyUseCase';
+import { JOURNEY_REPOSITORY } from './infrastructure/JourneyRepository';
+import { MysqlJourneyRepository } from './infrastructure/mysql/MysqlJourneyRepository';
+import { JourneyEntity } from './infrastructure/entities/JourneyEntity';
+import { CARD_REPOSITORY } from '../cards/infrastructure/CardRepository';
+import { MysqlCardRepository } from '../cards/infrastructure/mysql/MysqlCardRepository';
+import { GetUserJourneysUseCase } from './application/GetUserJourneysUseCase/GetUserJourneysUseCase';
+import { CardEntity } from '../cards/infrastructure/entities/CardEntity';
 
 @Module({
   imports: [
@@ -16,6 +24,8 @@ import { GetUserOwnedCardsUseCase } from './application/GetUserOwnedCardsUseCase
       UserEntity,
       UserCardEntity,
       UserCardPackageEntity,
+      JourneyEntity,
+      CardEntity,
     ]),
   ],
   controllers: [UserController],
@@ -23,9 +33,15 @@ import { GetUserOwnedCardsUseCase } from './application/GetUserOwnedCardsUseCase
     UserSignUpUseCase,
     UserSignInUseCase,
     GetUserOwnedCardsUseCase,
+    GetUserJourneysUseCase,
+    CreateJourneyUseCase,
     {
       provide: USER_REPOSITORY,
       useClass: MysqlUserRepository,
+    },
+    {
+      provide: JOURNEY_REPOSITORY,
+      useClass: MysqlJourneyRepository,
     },
   ],
 })

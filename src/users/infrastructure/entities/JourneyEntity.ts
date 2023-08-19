@@ -1,4 +1,5 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { UserEntity } from './UserEntity';
 
 @Entity({ name: 'journeys' })
 export class JourneyEntity extends BaseEntity {
@@ -16,4 +17,8 @@ export class JourneyEntity extends BaseEntity {
 
   @Column()
   j_user_card_indexes: string;
+
+  @ManyToOne(() => UserEntity, (user) => user.journeys)
+  @JoinColumn({ name: 'j_user_index' })
+  user: UserEntity;
 }

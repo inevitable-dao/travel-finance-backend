@@ -1,14 +1,16 @@
 import { Body, Controller, Headers, ForbiddenException, Get, HttpCode, HttpStatus, InternalServerErrorException, Post, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiInternalServerErrorResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AllExceptionsFilter } from '../../shared/filters/AllExceptionsFilter';
 import { ControllerResponseOnError } from '../../shared/core/presentation/ControllerResponse';
 import { Request, Response } from 'express';
 import { UserSignUpUseCase } from '../application/UserSignUpUseCase/UserSignUpUseCase';
-import { UserControllerSignInRequestBody, UserControllerSignUpRequestBody } from './dto/UserControllerRequest';
+import { UserControllerCreateJourneyRequestBody, UserControllerSignInRequestBody, UserControllerSignUpRequestBody } from './dto/UserControllerRequest';
 import { UserSignInUseCase } from '../application/UserSignInUseCase/UserSignInUseCase';
 import { JwtAuthenticationGuard } from '../../auth/guards/JwtAuthenticationGuard';
 import { GetUserOwnedCardsUseCase } from '../application/GetUserOwnedCardsUseCase/GetUserOwnedCardsUseCase';
 import { ControllerRequestAuthCommonHeader } from '../../shared/core/presentation/ControllerRequest';
+import { CreateJourneyUseCase } from '../application/CreateJourneyUseCase/CreateJourneyUseCase';
+import { GetUserJourneysUseCase } from '../application/GetUserJourneysUseCase/GetUserJourneysUseCase';
 
 @Controller('users')
 @ApiTags('User')
@@ -17,6 +19,8 @@ export class UserController {
     private readonly userSignUpUseCase: UserSignUpUseCase,
     private readonly userSignInUseCase: UserSignInUseCase,
     private readonly getUserOwnedCardsUseCase: GetUserOwnedCardsUseCase,
+    private readonly getUserJourneysUseCase: GetUserJourneysUseCase,
+    private readonly createJourneyUseCase: CreateJourneyUseCase,
   ) {}
 
   @Post('sign-up')
@@ -125,4 +129,99 @@ export class UserController {
       throw error;
     }
   }
+
+  @Get('me/journeys')
+  @UseFilters(AllExceptionsFilter)
+  @UseGuards(JwtAuthenticationGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '여정들 조회' })
+  @ApiBadRequestResponse({ description: 'Bad Request', type: ControllerResponseOnError })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized', type: ControllerResponseOnError })
+  @ApiForbiddenResponse({ description: 'Forbidden', type: ControllerResponseOnError })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error', type: ControllerResponseOnError })
+  async getUserJourneys(
+    @Headers() headers: ControllerRequestAuthCommonHeader,
+    @Req() request: Request,
+    @Res() response: Response,
+  ) {
+    try {
+      if (!request.user) {
+        throw new ForbiddenException();
+      }
+
+      const { ok, journeys } = await this.getUserJourneysUseCase.execute({
+        username: request.user as string,
+      });
+
+      if (!ok) {
+        throw new InternalServerErrorException();
+      }
+
+      response.status(HttpStatus.OK).send({
+        statusCode: HttpStatus.OK,
+        timestamp: new Date().toISOString(),
+        path: request.url,
+        result: {
+          journeys: journeys.map(journey => ({
+            id: journey.id,
+            startDatetime: journey.startDatetime,
+            endDatetime: journey.endDatetime,
+            cards: journey.cards.map(card => ({
+              id: card.id,
+              type: card.type,
+              name: card.name,
+              description: card.description,
+              address: card.address,
+              estimatedHours: card.estimatedHours,
+            })),
+          })),
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Post('me/journeys')
+  @UseFilters(AllExceptionsFilter)
+  @UseGuards(JwtAuthenticationGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '여정 생성' })
+  @ApiBadRequestResponse({ description: 'Bad Request', type: ControllerResponseOnError })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized', type: ControllerResponseOnError })
+  @ApiForbiddenResponse({ description: 'Forbidden', type: ControllerResponseOnError })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error', type: ControllerResponseOnError })
+  async createJourney(
+    @Headers() headers: ControllerRequestAuthCommonHeader,
+    @Body() body: UserControllerCreateJourneyRequestBody,
+    @Req() request: Request,
+    @Res() response: Response,
+  ) {
+    try {
+      if (!request.user) {
+        throw new ForbiddenException();
+      }
+
+      const { ok } = await this.createJourneyUseCase.execute({
+        username: request.user as string,
+        startDatetime: body.startDatetime,
+        endDatetime: body.endDatetime,
+        cardsId: body.cardsId,
+      });
+
+      if (!ok) {
+        throw new InternalServerErrorException();
+      }
+
+      response.status(HttpStatus.OK).send({
+        statusCode: HttpStatus.OK,
+        timestamp: new Date().toISOString(),
+        path: request.url,
+        result: {},
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }
