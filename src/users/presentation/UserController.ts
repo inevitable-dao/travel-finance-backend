@@ -122,6 +122,7 @@ export class UserController {
             description: card.description,
             address: card.address,
             estimatedHours: card.estimatedHours,
+            rank: card.rank,
           })),
         },
       });
@@ -173,6 +174,7 @@ export class UserController {
               description: card.description,
               address: card.address,
               estimatedHours: card.estimatedHours,
+              rank: card.rank,
             })),
           })),
         },

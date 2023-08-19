@@ -102,6 +102,7 @@ export class CardPackageController {
             description: card.description,
             address: card.address,
             estimatedHours: card.estimatedHours,
+            rank: card.rank,
           })),
         },
       });
