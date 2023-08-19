@@ -51,7 +51,17 @@ export class UpgradeCardUseCase implements UseCase<UpgradeCardUseCaseRequest, Up
     }
 
     const sourceCards = userCards.filter(userCard => request.sourceCardsId.includes(userCard.card.id));
-    if (sourceCards.length !== request.sourceCardsId.length) {
+    const sourceCardsIdSet = new Set<number>();
+    const uniqueSourceCards: UserCard[] = [];
+
+    for (const item of sourceCards) {
+      if (!sourceCardsIdSet.has(item.card.id)) {
+        sourceCardsIdSet.add(item.card.id);
+        uniqueSourceCards.push(item);
+      }
+    }
+
+    if (uniqueSourceCards.length !== request.sourceCardsId.length) {
       throw new BadRequestException('User does not have source cards');
     }
 
@@ -63,13 +73,13 @@ export class UpgradeCardUseCase implements UseCase<UpgradeCardUseCaseRequest, Up
       throw new BadRequestException('Target card is already max grade');
     }
 
-    if (!this.isEverySourceCardsIsSameOrLowerGradeThanTargetCard(targetCard.card, sourceCards.map(userCard => userCard.card))) {
+    if (!this.isEverySourceCardsIsSameOrLowerGradeThanTargetCard(targetCard.card, uniqueSourceCards.map(userCard => userCard.card))) {
       throw new BadRequestException('Some source cards are higher grade than target card');
     }
 
     let successRate = 0;
 
-    for (const sourceCard of sourceCards) {
+    for (const sourceCard of uniqueSourceCards) {
       if (sourceCard.card.rank === targetCard.card.rank) {
         if (sourceCard.card.rank === CardRank.B) {
           successRate += 50;
@@ -110,7 +120,7 @@ export class UpgradeCardUseCase implements UseCase<UpgradeCardUseCaseRequest, Up
       throw new InternalServerErrorException('Failed to upgrade card');
     }
 
-    for (const sourceCard of sourceCards) {
+    for (const sourceCard of uniqueSourceCards) {
       await this.userRepository.useCard(user.username, sourceCard.card.id);
     }
 
