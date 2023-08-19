@@ -9,7 +9,7 @@ export class MysqlUserRepositoryMapper {
     return User.create(
       {
         username: entity.u_username,
-        password: '',
+        password: entity.u_password,
         point: entity.u_point,
       },
       entity.u_index,

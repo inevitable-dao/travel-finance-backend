@@ -8,6 +8,7 @@ import { UserCard } from '../../domain/UserCard';
 import { UserCardPackage } from '../../domain/UserCardPackage';
 import { UserCardPackageEntity } from '../entities/UserCardPackageEntity';
 import { UserCardEntity } from '../entities/UserCardEntity';
+import { PasswordHandler } from '../../../shared/security/PasswordHandler';
 
 export class MysqlUserRepository implements UserRepository {
   constructor(
@@ -40,7 +41,7 @@ export class MysqlUserRepository implements UserRepository {
       .into(UserEntity)
       .values({
         u_username: user.username,
-        u_password: user.password,
+        u_password: await PasswordHandler.hashPassword(user.password),
         u_point: user.point,
       })
       .execute();
@@ -51,14 +52,19 @@ export class MysqlUserRepository implements UserRepository {
       .createQueryBuilder('users')
       .leftJoinAndSelect('users.userCards', 'userCards')
       .where('u_username = :username', { username })
-      .andWhere('u_password = :password', { password })
       .getOne();
 
     if (!entity) {
       return null;
     }
 
-    return MysqlUserRepositoryMapper.toDomain(entity);
+    const user = MysqlUserRepositoryMapper.toDomain(entity);
+    const isCorrectAuthentication = await PasswordHandler.comparePasswords(password, user.password);
+    if (!isCorrectAuthentication) {
+      return null;
+    }
+
+    return user;
   }
 
   async usePoint(username: string, pointAmount: number): Promise<void> {
