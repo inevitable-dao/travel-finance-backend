@@ -3,6 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { config } from './config';
+import { CardPackageModule } from './cardPackages/CardPackageModule';
+import { AuthModule } from './auth/AuthModule';
+import { UserModule } from './users/UserModule';
+import { CardModule } from './cards/CardModule';
 
 @Module({
   imports: [
@@ -24,6 +28,10 @@ import { config } from './config';
       charset: 'utf8mb4',
       logging: [],
     }),
+    AuthModule,
+    CardPackageModule,
+    UserModule,
+    CardModule,
   ],
   controllers: [AppController],
   providers: [],

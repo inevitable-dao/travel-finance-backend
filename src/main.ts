@@ -2,12 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerCustomOptions, SwaggerModule } from '@nestjs/swagger';
 import { INestApplication } from '@nestjs/common';
+import { HttpLoggingInterceptor } from './shared/interceptors/HttpLoggingInterceptor';
 
 function setupSwaggerDocument(app: INestApplication): void {
   const config = new DocumentBuilder()
     .setTitle('API Documentation')
     .setVersion('0.1')
     .addTag('Misc', 'Miscellaneous APIs')
+    .addTag('Card', 'Card related APIs')
     .build();
 
   const options: SwaggerCustomOptions = {
@@ -24,6 +26,14 @@ function setupSwaggerDocument(app: INestApplication): void {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useGlobalInterceptors(new HttpLoggingInterceptor());
+  app.enableCors({
+    origin: [
+      'https://travel-finance.vercel.app',
+      'http://localhost:3000',
+    ],
+  });
+
   const port = 80;
 
   setupSwaggerDocument(app);

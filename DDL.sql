@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS `users`
 (
     u_index    INT          NOT NULL AUTO_INCREMENT,
-    u_username VARCHAR(20)  NOT NULL DEFAULT '' COMMENT '유저이름',
+    u_username VARCHAR(200)  NOT NULL DEFAULT '' COMMENT '유저이름',
+    u_password VARCHAR(255)  NOT NULL DEFAULT '' COMMENT '유저비밀번호',
     u_point    INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '포인트',
     PRIMARY KEY (`u_index`),
     UNIQUE KEY (`u_username`)
@@ -10,6 +11,7 @@ CREATE TABLE IF NOT EXISTS `users`
 CREATE TABLE IF NOT EXISTS `user_card_packages`
 (
     ucp_index              INT      NOT NULL AUTO_INCREMENT,
+    ucp_user_index         INT      NOT NULL COMMENT '유저 INDEX',
     ucp_card_package_index INT      NOT NULL COMMENT '구매한 패키지 INDEX',
     ucp_register_datetime  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '획득일자',
     PRIMARY KEY (`ucp_index`)
@@ -18,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `user_card_packages`
 CREATE TABLE IF NOT EXISTS `user_cards`
 (
     uc_index             INT      NOT NULL AUTO_INCREMENT,
+    uc_user_index       INT      NOT NULL COMMENT '유저 INDEX',
     uc_card_index        INT      NOT NULL COMMENT '구매한 카드 INDEX',
     uc_is_use            ENUM ('Y', 'N')   DEFAULT 'Y' COMMENT '사용여부 (만약 A카드를 B카드로 강화하면 A와 B모두 N이 되며, C카드가 새로이 생긴다)',
     uc_register_datetime DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '획득일자',

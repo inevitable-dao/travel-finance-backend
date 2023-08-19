@@ -1,0 +1,7 @@
+export enum CardType {
+  TRANSPORT = 'TRANSPORT',
+  ATTRACTION = 'ATTRACTION',
+  ACTIVITY = 'ACTIVITY',
+  MEAL = 'MEAL',
+  STAY = 'STAY',
+}
