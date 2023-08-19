@@ -17,6 +17,7 @@ import { CARD_REPOSITORY } from '../cards/infrastructure/CardRepository';
 import { MysqlCardRepository } from '../cards/infrastructure/mysql/MysqlCardRepository';
 import { GetUserJourneysUseCase } from './application/GetUserJourneysUseCase/GetUserJourneysUseCase';
 import { CardEntity } from '../cards/infrastructure/entities/CardEntity';
+import { GetUserInformationUseCase } from './application/GetUserInformationUseCase/GetUserInformationUseCase';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { CardEntity } from '../cards/infrastructure/entities/CardEntity';
     GetUserOwnedCardsUseCase,
     GetUserJourneysUseCase,
     CreateJourneyUseCase,
+    GetUserInformationUseCase,
     {
       provide: USER_REPOSITORY,
       useClass: MysqlUserRepository,

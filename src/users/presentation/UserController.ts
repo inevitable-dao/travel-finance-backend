@@ -11,6 +11,7 @@ import { GetUserOwnedCardsUseCase } from '../application/GetUserOwnedCardsUseCas
 import { ControllerRequestAuthCommonHeader } from '../../shared/core/presentation/ControllerRequest';
 import { CreateJourneyUseCase } from '../application/CreateJourneyUseCase/CreateJourneyUseCase';
 import { GetUserJourneysUseCase } from '../application/GetUserJourneysUseCase/GetUserJourneysUseCase';
+import { GetUserInformationUseCase } from '../application/GetUserInformationUseCase/GetUserInformationUseCase';
 
 @Controller('users')
 @ApiTags('User')
@@ -21,6 +22,7 @@ export class UserController {
     private readonly getUserOwnedCardsUseCase: GetUserOwnedCardsUseCase,
     private readonly getUserJourneysUseCase: GetUserJourneysUseCase,
     private readonly createJourneyUseCase: CreateJourneyUseCase,
+    private readonly getUserInformationUseCase: GetUserInformationUseCase,
   ) {}
 
   @Post('sign-up')
@@ -77,6 +79,47 @@ export class UserController {
         path: request.url,
         result: {
           token: token,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get('me')
+  @UseFilters(AllExceptionsFilter)
+  @UseGuards(JwtAuthenticationGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '내 정보 조회' })
+  @ApiBadRequestResponse({ description: 'Bad Request', type: ControllerResponseOnError })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized', type: ControllerResponseOnError })
+  @ApiForbiddenResponse({ description: 'Forbidden', type: ControllerResponseOnError })
+  @ApiInternalServerErrorResponse({ description: 'Internal Server Error', type: ControllerResponseOnError })
+  async getMe(
+    @Headers() headers: ControllerRequestAuthCommonHeader,
+    @Req() request: Request,
+    @Res() response: Response,
+  ) {
+    try {
+      if (!request.user) {
+        throw new ForbiddenException();
+      }
+
+      const { ok, point } = await this.getUserInformationUseCase.execute({
+        username: request.user as string,
+      });
+
+      if (!ok) {
+        throw new InternalServerErrorException();
+      }
+
+      response.status(HttpStatus.OK).send({
+        statusCode: HttpStatus.OK,
+        timestamp: new Date().toISOString(),
+        path: request.url,
+        result: {
+          username: request.user as string,
+          point: point,
         },
       });
     } catch (error) {
