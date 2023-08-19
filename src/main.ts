@@ -9,6 +9,8 @@ function setupSwaggerDocument(app: INestApplication): void {
     .setTitle('API Documentation')
     .setVersion('0.1')
     .addTag('Misc', 'Miscellaneous APIs')
+    .addTag('User', 'User related APIs')
+    .addTag('Card Package', 'Card Package related APIs')
     .addTag('Card', 'Card related APIs')
     .build();
 
